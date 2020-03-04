@@ -1,5 +1,5 @@
 # ceneoscraper
-# Etap 1 - pobranie pojedynczeej opinii 
+# Etap 1 - pobranie pojedynczej opinii 
 - opinia
 - identyfikator
 - autor
