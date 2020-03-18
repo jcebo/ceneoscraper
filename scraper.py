@@ -26,18 +26,35 @@ page_tree = BeautifulSoup(page_response.text, 'html.parser')
 
 #wybranie z kodu strony fragmenów odpowiadających poszczególnym opiniom
 opinions = page_tree.select("li.review-box")
-
+#ekstrakcja składowych dla pierwszej opinii z listy
 opinion = opinions.pop()
-opinion_id = opinion.select('li.review box["data-entry-id"]').pop().string
+opinion_id = opinion["data-entry-id"]
 author = opinion.select('div.reviewer-name-line').pop().string
-recomendation = opinion.select('div.product-review-summary > em').pop().string
+try:
+    recomendation = opinion.select('div.product-review-summary > em').pop().string
+except IndexError:
+    recomendation = None
 stars = opinion.select('span.review-score-count').pop().string
 purchased = opinion.select('div.product-review-pz').pop().string
 useful = opinion.select('button.vote-yes').pop()["data-total-vote"]
 useless = opinion.select('button.vote-no').pop()["data-total-vote"]
 content = opinion.select('p.product-review-body').pop().get_text()
+try:
+    cons = opinion.select('div.cons-cell > ul').pop().get_text()
+except IndexError:
+    cons = None
+try:
+    pros = opinion.select('div.pros-cell > ul').pop().get_text()
+except IndexError:
+    pros = None    
+date = opinion.select('span.review-time > time')
+review_date = date.pop(0)["datetime"]
+try:
+    purchase_date = date.pop(0)["datetime"]
+except IndexError:
+    purchase_date = None
+print(opinion_id,author,recomendation,stars,content,pros,cons,useful,useless,purchased,purchase_date,review_date)
 
-#ekstrakcja składowych dla pierwszej opinii z listy
 
 
 
