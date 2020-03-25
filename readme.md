@@ -19,4 +19,4 @@
 - zapis składowych opinii do złożonej struktury danych
 ## Etap 3 - pobranie wszystkich opinii o pojedynczym produkcie 
 - sposób przechodzenia po kolejnych stronach z opiniami
-- eksport opinii do pliku
+- eksport opinii do pliku (.csv lub .xlsx lub .json)
