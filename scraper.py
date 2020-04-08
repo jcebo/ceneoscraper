@@ -42,6 +42,7 @@ url_prefix = "https://www.ceneo.pl"
 product_id = input("Podaj kod produktu: ")
 url_postfix = "#tab=reviews"
 url = url_prefix+"/"+product_id+url_postfix
+print(url)
 
 #pusta lista na opinie
 opinions_list = []
@@ -73,7 +74,7 @@ while url:
         url = None   
 
     print("url:",url)    
-with open(git , 'w', encoding="UTF-8") as fp:
+with open('opinions/'+product_id+".json", 'w', encoding="UTF-8") as fp:
     json.dump(opinions_list, fp, ensure_ascii=False, separators=(",",": "), indent=4 )
 
 
