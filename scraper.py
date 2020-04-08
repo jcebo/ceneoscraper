@@ -29,6 +29,14 @@ selectors = {
             "review_date":['span.review-time > time:nth-of-type(2)',"datetime"]    
         }
 
+#funkcja do usuwania znaków formatujących
+def remove_whitespaces(text):
+    for char in ["\n", "\r"]:
+        try:
+            return text.replace(char, ". ")
+        except AttributeError:
+            pass
+
 #adres URL strony z opiniami
 url_prefix = "https://www.ceneo.pl"
 product_id = input("Podaj kod produktu: ")
@@ -52,15 +60,10 @@ while url:
         features["purchased"] = True if features["purchased"] == "Opinia potwierdzona zakupem" else False
         features["useful"] = int(features["useful"])
         features["useless"] = int(features["useless"])
-        features["content"] = features["content"].replace("\n", ".")
-        try:
-            features["pros"] = features["pros"].replace("\n", ".")
-        except AttributeError:
-            pass
-        try:
-            features["cons"] = features["cons"].replace("\n", ".")
-        except AttributeError:
-            pass
+        features["content"] = features["content"].replace("\n", ". ").replace("\r",". ")
+        features["pros"] = remove_whitespaces(features["pros"])
+        features["cons"] = remove_whitespaces(features["cons"])
+        
         opinions_list.append(features)            
         
         
@@ -70,7 +73,7 @@ while url:
         url = None   
 
     print("url:",url)    
-with open("opinions/"+product_id+".json", 'w', encoding="UTF-8") as fp:
+with open(git , 'w', encoding="UTF-8") as fp:
     json.dump(opinions_list, fp, ensure_ascii=False, separators=(",",": "), indent=4 )
 
 

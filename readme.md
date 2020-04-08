@@ -23,3 +23,7 @@
 ## Etap 4 - refaktoryzacja kodu 
 - eliminacja powtarzających się fragmentów kodu
 - transformacja danych (typ danych, czyszczenie danych )
+## Etap 5 - analiza pobranych danych
+- zapis pobranych danych do obiektu dataframe (ramka danych)
+- wykonanie prostych obliczeń na danych
+- wykonanie prostych wykresów
