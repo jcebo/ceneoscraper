@@ -50,6 +50,17 @@ while url:
             for key,args in selectors.items()}
         features["opinion_id"] = int(opinion["data-entry-id"])
         features["purchased"] = True if features["purchased"] == "Opinia potwierdzona zakupem" else False
+        features["useful"] = int(features["useful"])
+        features["useless"] = int(features["useless"])
+        features["content"] = features["content"].replace("\n", ".")
+        try:
+            features["pros"] = features["pros"].replace("\n", ".")
+        except AttributeError:
+            pass
+        try:
+            features["cons"] = features["cons"].replace("\n", ".")
+        except AttributeError:
+            pass
         opinions_list.append(features)            
         
         
@@ -59,11 +70,12 @@ while url:
         url = None   
 
     print("url:",url)    
-with open(product_id+".json", 'w', encoding="UTF-8") as fp:
+with open("opinions/"+product_id+".json", 'w', encoding="UTF-8") as fp:
     json.dump(opinions_list, fp, ensure_ascii=False, separators=(",",": "), indent=4 )
 
 
 
 
 
+91184998
 
