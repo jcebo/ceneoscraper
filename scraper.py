@@ -17,7 +17,7 @@ def extract_feature(opinion,selector, attribute = None):
 #lista składowych opinii wraz z selektorami i atrybutami
 selectors = {            
             "author": ['div.reviewer-name-line'],
-            "recomendation": ['div.product-review-summary > em'],
+            "recommendation": ['div.product-review-summary > em'],
             "stars":['span.review-score-count'],
             "content":['p.product-review-body'],
             "pros":['div.pros-cell > ul'],
