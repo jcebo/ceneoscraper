@@ -37,6 +37,7 @@
             /__init__.py
             /views.py
             /models.py
+            /forms.py
             /scraper.py
             /analyzer.py
             /static/
