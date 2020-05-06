@@ -34,7 +34,7 @@
         /run.py
         /config.py
         /app
-            /__init__.py
+            /\_\_init\_\_.py
             /views.py
             /models.py
             /forms.py
