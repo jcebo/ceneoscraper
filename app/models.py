@@ -1,42 +1,77 @@
+#import bibliotek
+import requests
+from bs4 import BeautifulSoup
+from enum import Enum, auto
+from app import app
+from app.utils import extract_feature, remove_whitespaces
+#from utils import extract_feature, remove_whitespaces
+import json
 
-
-import utils
 class Product:
     def __init__(self, product_id=None, name=None, opinions=[]):
         self.product_id = product.id
         self.name = name 
         self.opinions = opinions
+
     def extract_product(self):
-        page_response =  requests.get("https://www.ceneo.pl"+request.form['product_code'])
+        page_response =  requests.get("https://www.ceneo.pl/"+self.product_id)
         page_tree = BeautifulSoup(page_response.text, 'html.parser')
-        self.name = int(page_tree.select("h1.product_name").pop().get_text().strip())
-        
+        self.name = page_tree.select("h1.product_name").pop().get_text().strip()
         try:
-            opinions_count = page_tree.select("a.product-reviews-link > span").pop().get_text().strip()
+            opinions_count = int(page_tree.select("a.product-reviews-link > span").pop().get_text().strip())
         except IndexError:
             opinions_count = 0
         if opinions_count > 0:
             url_prefix = "https://www.ceneo.pl"
             url_postfix = "#tab=reviews"
             url = url_prefix+"/"+self.product_id+url_postfix
-            print(url)
+            opinions_list=[]
             while url:
+                print(url)
                 #pobranie kodu HTML strony z adresu URL 
                 page_response =  requests.get(url)
                 page_tree = BeautifulSoup(page_response.text, 'html.parser')
+                opinions = page_tree.select("div.js_product-review")
+                #wybranie z kodu strony fragmentów odpowiadających poszczególnym opiniom
                 opinions = page_tree.select("div.js_product-review")
                 #ekstrakcja składowych dla pierwszej opinii z listy
                 for opinion in opinions:     
                     op = Opinion()
                     op.extract_opinion(opinion)
-                    self.opinion.append(op)
+                    op.transform_opinion()
+                    opinions_list.append(op)
+                    try:
+                        url = url_prefix+page_tree.select("a.pagination__next").pop()["href"]
+                    except IndexError:
+                        url = None
+                print(len(opinions_list))
+            self.opinions = opinions_list
+            print(len(self.opinions))
+    def __str__(self):
+        return f'product id: {self.product_id}\n nazwa: {self.name}\n\n'+'\n'.join(str(opinion) for opinion in self.opinions)
+    
+    def __dict__(self):
+        return {
+            "product id": self.product_id,
+            "product name": self.name,
+            "opinions": [opinion.__dict__() for opinion in self.opinions]
+        }
+    
+    def save_product(self):
+        with open("app/opinions/"+self.product_id+".json", 'w', encoding="UTF-8") as fp:
+            json.dump(self.__dict__(), fp, ensure_ascii=False, separators=(",",": "), indent=4 )
 
-                   
-                    
-        
-                    opinions_list.append(features)            
-class Selectors(Enum):
-    AUTHOR = ['div.reviewer-name-line']        
+    def read_product(self, product_id):
+        with open("app/opinions/"+product_id+".json", 'r') as f:
+            pr = json.loads(f)
+        self.product_id = product_id
+        self.name = pr['name']
+        opinions = pr['opinions']
+        for opinion in opinions:
+            op = Opinion()
+            op.from_dict(opinion)
+            self.opinions.append(op)
+     
 
 class Opinion:
     #lista składowych opinii wraz z selektorami i atrybutami
@@ -70,28 +105,29 @@ class Opinion:
         self.reiew_date = review_date
     # reprezentacja tekstowa obiektu klasy
     def __str__(self):
-        return f'product id: {self.product_id}\n nazwa: {self.name}\n' + '\n'.join(str(self.opinion) for opinion) 
+         return '\n'.join(key+': '+('' if getattr(self,key) is None else getattr(self,key)) for key in self.selectors.keys())
     #reprezetnacja słownikowa obiektu   
-    def __repr__(self):
-        pass
-    def save_product(self):
-        pass
-
-    def extract_opinion(self):
-        self.author = extract_feature(opinion, *self.selectors['author'])
-        features = {key:extract_feature(opinion, *args)
-                    for key,args in selectors.items()}
-        self.opinion_id = int(opinion["data-entry-id"])
-        pass
+    def __dict__(self):
+        features = {key:('' if getattr(self,key) is None else getattr(self,key))
+                    for key in self.selectors.keys()}
+        features['opinion_id'] = self.opinion_id
+        return features
+    def extract_opinion(self, opinion):
+        for key, args in self.selectors.items():
+            setattr(self, key, extract_feature(opinion, *args))
+        self.opinion_id = int(opinion["data-entry-id"])       
+     
     def transform_opinion(self):
-            features["purchased"] = True if features["purchased"] == "Opinia potwierdzona zakupem" else False
-                    features["useful"] = int(features["useful"])
-                    features["useless"] = int(features["useless"])
-                    features["content"] = features["content"].replace("\n", ". ").replace("\r",". ")
-                    features["pros"] = remove_whitespaces(features["pros"])
-                    features["cons"] = remove_whitespaces(features["cons"])
+        self.purchased = True if features["purchased"] == "Opinia potwierdzona zakupem" else False
+        self.useful = int(self.useful)
+        self.useless = int(self.useless)                    
+        self.content = remove_whitespaces(self.content)
+        self.pros = remove_whitespaces(self.pros)
+        self.cons = remove_whitespaces(self.cons)
+    def from_dict(self, opinion_dict):
+        for key, value in opinion_dict.items():
+            setattr(self, key, value)
    
     product = Product("79688141")
     product.extract_product()
-    print(product.opinions)
-    print(len(product.opinions))
+    print(json.dumps(product.__dict__, indent=4, ensure_ascii=False)))

@@ -1,13 +1,15 @@
 from app import app
-from flask import render_template
+from flask import render_template, request, redirect, 
 from flaskext.markdown import Mardown
 from app.forms import ProductForm
 from app.models import Product, Opinion
+import requests
 app.config['SECRET_KEY'] = "Tajemniczy_mysi_sprzęt"
+Markdown(app)
 @app.route('/')
 @app.route('/index')
 def index():
-    return "Hello, World!" 
+    return render_template("index.html")
 
 @app.route('/extraction.html', methods = ['POST', 'GET'])
 def extraction():
@@ -17,7 +19,8 @@ def extraction():
         if page_response.status_code == 200:
             product = Product(request.form['product_code'])
             product.extract_product()
-            return "ok"
+            product.save_product()
+            return redirect(url_for(product, product_id=product.product_id))
         else:
             form.product_code.errors.append("Dla podanego kodu nie ma produktu")
             return render_template("extraction.html", form=form)             
@@ -35,7 +38,11 @@ def author():
     return render_template("author.html", text=content)
 
 @app.route('/product/<product_id>')
-def product():
+def product(product_id):
+    product = Product()
+    product.read_product(product_id)
+    #return render_template(product.html)
+    return product
     
 
 @app.route('/analyzer/<product_id>')
