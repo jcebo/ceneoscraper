@@ -3,3 +3,10 @@
     {% for table in tables %}
         {{ table|safe }}
     {% endfor %%}
+{% block scripts %}
+    <script>
+        $(document).ready( function () {
+            $('#myTable').DataTable();
+        } );
+    </script>
+{% endblock %}
